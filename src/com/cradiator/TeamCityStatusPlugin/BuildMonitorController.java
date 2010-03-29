@@ -24,6 +24,7 @@ import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.serverSide.ProjectManager;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.serverSide.SProject;
+import jetbrains.buildServer.serverSide.SBuildType;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ import java.io.IOException;
 
 public class BuildMonitorController extends BaseController {
     public static final String PROJECT_ID = "projectId";
+    public static final String BUILD_TYPE_ID = "buildTypeId";
 
     private final ProjectManager projectManager;
     private final Cradiator cradiator;
@@ -45,10 +47,12 @@ public class BuildMonitorController extends BaseController {
 
     protected ModelAndView doHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        if (requestHasParameter(request, PROJECT_ID)) {
+        if (requestHasParameter(request, PROJECT_ID))
             return showProject(request.getParameter(PROJECT_ID), response);
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "no project id specified");
+        else if (requestHasParameter(request, BUILD_TYPE_ID))
+            return showBuild(request.getParameter(BUILD_TYPE_ID), response);
+        else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "no project id or buildTypeId specified");
             return null;
         }
     }
@@ -61,6 +65,16 @@ public class BuildMonitorController extends BaseController {
         }
         return modelWithView("project-status.jsp")
                 .addObject("project", new ProjectMonitorViewState(project));
+    }
+	
+    private ModelAndView showBuild(String buildTypeId, HttpServletResponse response) throws IOException {
+        SBuildType buildType = projectManager.findBuildTypeById(buildTypeId);
+        if (buildType == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "no buildType with id " + buildTypeId);
+            return null;
+        }
+        return modelWithView("build-status.jsp")
+                .addObject("build", new BuildTypeMonitorViewState(buildType));
     }
 
     private ModelAndView modelWithView(String viewJSP) {
