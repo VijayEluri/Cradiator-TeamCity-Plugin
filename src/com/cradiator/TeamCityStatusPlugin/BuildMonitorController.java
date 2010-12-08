@@ -38,9 +38,11 @@ public class BuildMonitorController extends BaseController {
 
     private final ProjectManager projectManager;
     private final Cradiator cradiator;
+    private SBuildServer server;
 
     public BuildMonitorController(SBuildServer server, ProjectManager projectManager, Cradiator cradiator) {
         super(server);
+        this.server = server;
         this.projectManager = projectManager;
         this.cradiator = cradiator;
     }
@@ -74,7 +76,7 @@ public class BuildMonitorController extends BaseController {
             return null;
         }
         return modelWithView("build-status.jsp")
-                .addObject("build", new BuildTypeMonitorViewState(buildType));
+                .addObject("build", new BuildTypeMonitorViewState( server, buildType));
     }
 
     private ModelAndView modelWithView(String viewJSP) {

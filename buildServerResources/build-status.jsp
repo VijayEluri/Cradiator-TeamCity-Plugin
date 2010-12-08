@@ -8,7 +8,7 @@
          lastBuildStatus="${build.lastFinishedBuild.buildStatus}"
          lastBuildLabel="${build.lastFinishedBuild.buildNumber}"
          lastBuildTime="${build.lastFinishedBuild.finishDate}"
-         webUrl=""
+         webUrl="${build.buildURL}"
          CurrentMessage=""
          BuildStage=""
          BuiltPercent="${build.completedPercent}">

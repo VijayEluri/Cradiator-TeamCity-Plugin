@@ -21,6 +21,7 @@
 package com.cradiator.TeamCityStatusPlugin;
 
 import jetbrains.buildServer.Build;
+import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.vcs.SelectPrevBuildPolicy;
@@ -36,8 +37,20 @@ public class BuildTypeMonitorViewState {
 	private Build lastFinishedBuild;
     private final Build latestBuild;
     private final List<String> committers;
+    private String rootURL;
 
     public BuildTypeMonitorViewState(SBuildType buildType) {
+        this.rootURL = "";
+		this.buildType = buildType;
+        this.lastFinishedBuild = buildType.getLastChangesFinished();
+		this.latestBuild = buildType.getLastChangesStartedBuild();
+		this.commitMessages = commitMessagesForBuild(latestBuild);
+
+        committers = committersForBuild(latestBuild);
+	}
+
+    public BuildTypeMonitorViewState(SBuildServer server, SBuildType buildType) {
+        this.rootURL = server.getRootUrl();
 		this.buildType = buildType;
         this.lastFinishedBuild = buildType.getLastChangesFinished();
 		this.latestBuild = buildType.getLastChangesStartedBuild();
@@ -111,6 +124,10 @@ public class BuildTypeMonitorViewState {
 
     public Build getLastFinishedBuild() {
         return lastFinishedBuild;
+    }
+
+    public String getBuildURL() {
+        return rootURL + "/viewLog.html?buildId=" + getLatestBuild().getBuildId() + "&buildTypeId=" + getLatestBuild().getBuildTypeId();
     }
 
 	public String getActivity() {
